@@ -17,14 +17,36 @@ const db = window.db;
 let citas = [];
 
 // =============================
-// ELEMENTOS DEL DOM
+// SECCIONES (NAVEGACIÓN)
 // =============================
-const form = document.getElementById("formReserva");
-const tablaCitas = document.getElementById("tablaCitas");
+function mostrarAgenda() {
+  document.getElementById("inicio").style.display = "none";
+  document.getElementById("agenda").style.display = "block";
+  document.getElementById("admin").style.display = "none";
+}
+
+function mostrarAdmin() {
+  document.getElementById("inicio").style.display = "none";
+  document.getElementById("agenda").style.display = "none";
+  document.getElementById("admin").style.display = "block";
+}
+
+function irInicio() {
+  document.getElementById("inicio").style.display = "block";
+  document.getElementById("agenda").style.display = "none";
+  document.getElementById("admin").style.display = "none";
+}
+
+// HACER FUNCIONES GLOBALES (IMPORTANTE)
+window.mostrarAgenda = mostrarAgenda;
+window.mostrarAdmin = mostrarAdmin;
+window.irInicio = irInicio;
 
 // =============================
-// ENVIAR FORMULARIO (GUARDAR EN FIREBASE)
+// FORMULARIO
 // =============================
+const form = document.getElementById("formReserva");
+
 async function enviarFormulario(e) {
   e.preventDefault();
 
@@ -45,17 +67,16 @@ async function enviarFormulario(e) {
 
   try {
     await addDoc(collection(db, "citas"), datos);
-
     alert("Cita registrada correctamente ✅");
     form.reset();
   } catch (error) {
-    console.error("Error al guardar:", error);
-    alert("Error al guardar la cita ❌");
+    console.error(error);
+    alert("Error al guardar ❌");
   }
 }
 
 // =============================
-// MOSTRAR CITAS EN TIEMPO REAL
+// ADMIN TIEMPO REAL
 // =============================
 function escucharCitas() {
   onSnapshot(collection(db, "citas"), (snapshot) => {
@@ -73,12 +94,13 @@ function escucharCitas() {
 }
 
 // =============================
-// RENDERIZAR TABLA
+// RENDER TABLA ADMIN
 // =============================
 function renderCitas() {
-  if (!tablaCitas) return;
+  const tabla = document.getElementById("tablaCitas");
+  if (!tabla) return;
 
-  tablaCitas.innerHTML = "";
+  tabla.innerHTML = "";
 
   citas.forEach((cita) => {
     const fila = document.createElement("tr");
@@ -96,18 +118,18 @@ function renderCitas() {
       </td>
     `;
 
-    tablaCitas.appendChild(fila);
+    tabla.appendChild(fila);
   });
 }
 
 // =============================
-// ELIMINAR CITA
+// ELIMINAR
 // =============================
 window.eliminarCita = async function (id) {
   try {
     await deleteDoc(doc(db, "citas", id));
   } catch (error) {
-    console.error("Error eliminando:", error);
+    console.error(error);
   }
 };
 
@@ -121,10 +143,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
   escucharCitas();
 });
-
-// =============================
-// HACER FUNCIONES GLOBALES
-// =============================
-window.mostrarAgenda = mostrarAgenda;
-window.mostrarAdmin = mostrarAdmin;
-window.irInicio = irInicio;
