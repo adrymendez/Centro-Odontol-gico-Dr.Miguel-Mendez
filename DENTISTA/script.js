@@ -1,7 +1,9 @@
 // =============================
 // IMPORTAR FIREBASE
 // =============================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
+  getFirestore,
   collection,
   addDoc,
   onSnapshot,
@@ -9,7 +11,20 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const db = window.db;
+// =============================
+// CONFIG FIREBASE
+// =============================
+const firebaseConfig = {
+  apiKey: "AIzaSyBrYqc-s1jhapSSGk3uE74Eevm24AAezHo",
+  authDomain: "centroodontologico-b2a8e.firebaseapp.com",
+  projectId: "centroodontologico-b2a8e",
+  storageBucket: "centroodontologico-b2a8e.firebasestorage.app",
+  messagingSenderId: "96326383408",
+  appId: "1:96326383408:web:25080ef07e08e410a2baf5"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // =============================
 // VARIABLES
@@ -17,7 +32,7 @@ const db = window.db;
 let citas = [];
 
 // =============================
-// SECCIONES (NAVEGACIÓN)
+// NAVEGACIÓN
 // =============================
 function mostrarAgenda() {
   document.getElementById("inicio").style.display = "none";
@@ -37,7 +52,7 @@ function irInicio() {
   document.getElementById("admin").style.display = "none";
 }
 
-// HACER FUNCIONES GLOBALES (IMPORTANTE)
+// HACERLAS GLOBALES
 window.mostrarAgenda = mostrarAgenda;
 window.mostrarAdmin = mostrarAdmin;
 window.irInicio = irInicio;
@@ -45,38 +60,45 @@ window.irInicio = irInicio;
 // =============================
 // FORMULARIO
 // =============================
-const form = document.getElementById("formReserva");
+document.addEventListener("DOMContentLoaded", () => {
 
-async function enviarFormulario(e) {
-  e.preventDefault();
+  const form = document.getElementById("formReserva");
 
-  const nombre = document.getElementById("nombre").value;
-  const telefono = document.getElementById("telefono").value;
-  const fecha = document.getElementById("fecha").value;
-  const hora = document.getElementById("hora").value;
-  const servicio = document.getElementById("servicio").value;
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  const datos = {
-    nombre,
-    telefono,
-    fecha,
-    hora,
-    servicio,
-    createdAt: new Date()
-  };
+      const nombre = document.getElementById("nombre").value;
+      const telefono = document.getElementById("telefono").value;
+      const fecha = document.getElementById("fecha").value;
+      const hora = document.getElementById("hora").value;
+      const servicio = document.getElementById("servicio").value;
 
-  try {
-    await addDoc(collection(db, "citas"), datos);
-    alert("Cita registrada correctamente ✅");
-    form.reset();
-  } catch (error) {
-    console.error(error);
-    alert("Error al guardar ❌");
+      const datos = {
+        nombre,
+        telefono,
+        fecha,
+        hora,
+        servicio,
+        createdAt: new Date()
+      };
+
+      try {
+        await addDoc(collection(db, "citas"), datos);
+        alert("Cita registrada correctamente ✅");
+        form.reset();
+      } catch (error) {
+        console.error(error);
+        alert("Error al guardar ❌");
+      }
+    });
   }
-}
+
+  escucharCitas();
+});
 
 // =============================
-// ADMIN TIEMPO REAL
+// ESCUCHAR CITAS EN TIEMPO REAL
 // =============================
 function escucharCitas() {
   onSnapshot(collection(db, "citas"), (snapshot) => {
@@ -94,7 +116,7 @@ function escucharCitas() {
 }
 
 // =============================
-// RENDER TABLA ADMIN
+// RENDER ADMIN
 // =============================
 function renderCitas() {
   const tabla = document.getElementById("tablaCitas");
@@ -132,14 +154,3 @@ window.eliminarCita = async function (id) {
     console.error(error);
   }
 };
-
-// =============================
-// INICIALIZAR
-// =============================
-document.addEventListener("DOMContentLoaded", () => {
-  if (form) {
-    form.addEventListener("submit", enviarFormulario);
-  }
-
-  escucharCitas();
-});
