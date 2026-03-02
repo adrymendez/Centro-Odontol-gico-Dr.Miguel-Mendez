@@ -121,3 +121,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   escucharCitas();
 });
+
+// =============================
+// HACER FUNCIONES GLOBALES
+// =============================
+window.mostrarAgenda = mostrarAgenda;
+window.mostrarAdmin = mostrarAdmin;
+window.irInicio = irInicio;
